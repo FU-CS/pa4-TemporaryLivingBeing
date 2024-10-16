@@ -34,16 +34,73 @@ public class BST {
      * @param value the value of the node to insert
      */
     public void insert(int value) {
-        
+        if (this.root == null){
+            this.root = new Node(value);
+        } 
+        else{
+            this.insertHelper(root, value);
+        }
     }
-
+    
+    private void insertHelper(Node curr, int value){
+        if (value <= curr.value) {
+            if (curr.left == null) {
+                curr.left = new Node(value);
+            } else {
+                this.insertHelper(curr.left, value);
+            }
+        } else {
+            if (curr.right == null) {
+                curr.right = new Node(value);
+            } else {
+                this.insertHelper(curr.right, value);
+            }
+        }
+    }
 
     /** 
      * Delete a node with a given value from the BST.
      * @param value the value of the node to delete
      */
     public void delete(int value) {
-        
+        if (!this.search(value)) {
+            return;
+        }
+        this.root = deleteHelper(this.root, value);
+    }
+
+    private Node deleteHelper(Node curr, int value) {
+        if (curr == null) {
+            return null;
+        }
+
+        if (value < curr.value) {
+            curr.left = deleteHelper(curr.left, value);
+        } else if (value > curr.value) {
+            curr.right = deleteHelper(curr.right, value);
+        } else {
+
+            if (curr.left == null) {
+                return curr.right;
+            } else if (curr.right == null) {
+                return curr.left;
+            }
+            curr.value = deleteHelperFindSmallest(curr.right);
+            curr.right = deleteHelper(curr.right, curr.value);
+        }
+        return curr;
+    }
+
+    private int deleteHelperFindSmallest(Node curr){
+        //  }
+        //  if (curr.right == null){
+        //     this.root = curr.right;
+        //     return;
+        //  }
+        while (curr.left != null) {
+            curr = curr.left;
+        }
+        return curr.value;
     }
 
     /** 
@@ -51,7 +108,23 @@ public class BST {
      * @param value the value to search for
      */
     public boolean search(int value) {
+        return searchHelper(this.root, value);
+    }
+
+    private boolean searchHelper(Node curr, int value){
+        if (curr == null){
+            return false;
+        }
         
+        if (curr.value == value){
+            return true;
+        }
+        if (value < curr.value){
+            return this.searchHelper(curr.left, value);
+        }
+        else{
+            return this.searchHelper(curr.right, value);
+        }
     }
 
     /** 
@@ -60,7 +133,10 @@ public class BST {
      * @param newValue the new value of the node to update
      */
     public void update(int oldValue, int newValue) {
-
+        if (this.search(oldValue) == true) {
+            this.delete(oldValue);
+            this.insert(newValue);
+        }
     }
 
     /** 
@@ -68,23 +144,57 @@ public class BST {
      * @return the inorder traversal of the BST
      */
     public String inOrder() {
-     
+     return this.inOrderHelper(this.root);
     }
 
+    private String inOrderHelper(Node curr){
+        if (curr == null){
+            return "";
+        }
+        String left = this.inOrderHelper(curr.left);
+
+        String right = this.inOrderHelper(curr.right);
+
+        return left + curr.value + " " + right;
+    }
     /** 
      * Convert a sorted array to a balanced BST.
      */
-    public static Node sortedArrayToBST(int[] arr) {
-        
+    public static Node sortedArrayToBST(int[] arr){
+        return sortedArrayToBSTHelper(arr, 0, arr.length - 1);
     }
 
+    private static Node sortedArrayToBSTHelper(int[] arr, int low, int high) {
+        if (low > high) {
+            return null;
+        }
+        int mid = (low + high) / 2;
+        Node node = new Node(arr[mid]);
+        node.left = sortedArrayToBSTHelper(arr, low, mid - 1);
+        node.right = sortedArrayToBSTHelper(arr, mid + 1, high);
+        return node;
+    }
     /** 
      * Find the lowest common ancestor of two nodes with given values in the BST.
      */
     public Node lowestCommonAncestor(int value1, int value2) {
-        
+        return lowestCommonAncestorHelper(this.root, value1, value2);
     }
 
+    private Node lowestCommonAncestorHelper(Node curr, int value1, int value2) {
+        if (curr == null) {
+            return null;
+        }
+
+        if ((curr.value > value1) && (curr.value > value2)) {
+            return lowestCommonAncestorHelper(curr.left, value1, value2);
+        }
+        if ((curr.value < value1) && (curr.value < value2)) {
+            return lowestCommonAncestorHelper(curr.right, value1, value2);
+        }
+        return curr;
+    }
+    
     public static void main(String[] args) {
 
         BST bst = new BST();
